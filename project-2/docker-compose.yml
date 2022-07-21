@@ -1,0 +1,29 @@
+version: '2.2'
+services:
+  pg_analytics:
+    image: postgres:12
+    environment:
+      POSTGRES_DB: analytics
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d analytics -U admin" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+  datascience-notebook:
+        image: jupyter/base-notebook:latest
+        volumes:
+            - ./Notebooks:/home/docker_worker/notebooks    
+        ports:
+            - 8891:8888
+        command: "start-notebook.sh"
+        user: root
+        environment:
+          NB_USER: docker_worker
+          NB_UID: 1008
+          NB_GID: 1011
+          CHOWN_HOME: 'yes'
+          JUPYTER_TOKEN: "docker"
